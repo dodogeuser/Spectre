@@ -1,0 +1,8 @@
+{
+  "fixture_notice": "Synthetic protocol fixtures, not actual intelligence about Google or its addresses.",
+  "ptr_names": ["dns.google."],
+  "bootstrap": {"services": [[["8.0.0.0/8"], ["https://rdap.fixture.example/"]], [["8.8.8.0/24"], ["https://specific.fixture.example/"]], [["2001:4860::/32"], ["https://rdap.fixture.example/"]]]},
+  "rdap": {"objectClassName": "ip network", "ipVersion": "v4", "startAddress": "8.8.8.0", "endAddress": "8.8.8.255", "handle": "FIXTURE-NET", "name": "SYNTHETIC-NET", "type": "DIRECT ALLOCATION", "country": "US", "status": ["active"], "events": [{"eventAction": "registration", "eventDate": "2020-01-01T00:00:00Z"}], "entities": [{"roles": ["registrant"], "vcardArray": ["vcard", [["org", {}, "text", "Synthetic Example Organization"]]]}]},
+  "routing": {"status": "ok", "data_call_name": "network-info", "time": "2026-10-05T00:00:00Z", "data": {"prefix": "8.8.8.0/24", "asns": [15169]}},
+  "prefix": {"status": "ok", "data_call_name": "prefix-overview", "data": {"resource": "8.8.8.0/24", "announced": true, "asns": [{"asn": 15169, "holder": "Synthetic Example Organization"}], "query_time": "2026-10-05T00:00:00Z"}}
+}

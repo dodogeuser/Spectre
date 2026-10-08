@@ -1,0 +1,163 @@
+{
+  "notice": "Recorded public provider response shapes, 2026-10-05. RDAP personal contacts and unrelated fields removed. Fixtures never imply live/current intelligence.",
+  "ptr_body_base64": "AACBgAABAAEAAAAAATgBOAE4ATgHaW4tYWRkcgRhcnBhAAAMAAHADAAMAAEAASnHAAwDZG5zBmdvb2dsZQA=",
+  "ip_rdap": {
+    "objectClassName": "ip network",
+    "ipVersion": "v4",
+    "startAddress": "8.8.8.0",
+    "endAddress": "8.8.8.255",
+    "handle": "NET-8-8-8-0-2",
+    "name": "GOGL",
+    "type": "DIRECT ALLOCATION",
+    "status": [
+      "active"
+    ],
+    "events": [
+      {
+        "eventAction": "last changed",
+        "eventDate": "2023-12-28T17:24:56-05:00"
+      },
+      {
+        "eventAction": "registration",
+        "eventDate": "2023-12-28T17:24:33-05:00"
+      }
+    ],
+    "entities": [
+      {
+        "roles": [
+          "registrant"
+        ],
+        "vcardArray": [
+          "vcard",
+          [
+            [
+              "kind",
+              {},
+              "text",
+              "org"
+            ],
+            [
+              "fn",
+              {},
+              "text",
+              "Google LLC"
+            ]
+          ]
+        ],
+        "entities": [
+          {
+            "roles": [
+              "abuse"
+            ],
+            "vcardArray": [
+              "vcard",
+              [
+                [
+                  "org",
+                  {},
+                  "text",
+                  "Google Inc."
+                ],
+                [
+                  "kind",
+                  {},
+                  "text",
+                  "group"
+                ]
+              ]
+            ],
+            "entities": []
+          },
+          {
+            "roles": [
+              "technical",
+              "administrative"
+            ],
+            "vcardArray": [
+              "vcard",
+              [
+                [
+                  "org",
+                  {},
+                  "text",
+                  "Google LLC"
+                ],
+                [
+                  "kind",
+                  {},
+                  "text",
+                  "group"
+                ]
+              ]
+            ],
+            "entities": []
+          }
+        ]
+      }
+    ]
+  },
+  "ip_asn": {
+    "messages": [],
+    "see_also": [],
+    "version": "1.1",
+    "data_call_name": "network-info",
+    "data_call_status": "supported",
+    "cached": true,
+    "query_id": "20261005030916-8ca7d2d2-87c8-4ffc-bdfc-eb682ec556f1",
+    "process_time": 8,
+    "server_id": "app162",
+    "build_version": "v0.11.21-2026.09.30",
+    "pipeline": "1443526",
+    "status": "ok",
+    "status_code": 200,
+    "time": "2026-10-05T03:09:16.975453",
+    "data": {
+      "asns": [
+        "15169"
+      ],
+      "prefix": "8.8.8.0/24"
+    }
+  },
+  "ip_asn_holder": {
+    "messages": [
+      [
+        "info",
+        "Related prefixes are truncated -  0 out of 2 shown."
+      ]
+    ],
+    "see_also": [],
+    "version": "1.3",
+    "data_call_name": "prefix-overview",
+    "data_call_status": "supported",
+    "cached": false,
+    "query_id": "20261005030918-d9786803-b83a-408e-88de-742f8f02eed3",
+    "process_time": 63,
+    "server_id": "app186",
+    "build_version": "v0.11.21-2026.09.30",
+    "pipeline": "1443526",
+    "status": "ok",
+    "status_code": 200,
+    "time": "2026-10-05T03:09:18.632364",
+    "data": {
+      "is_less_specific": false,
+      "announced": true,
+      "asns": [
+        {
+          "asn": 15169,
+          "holder": "GOOGLE - Google LLC"
+        }
+      ],
+      "related_prefixes": [],
+      "resource": "8.8.8.0/24",
+      "type": "prefix",
+      "block": {
+        "resource": "8.0.0.0/8",
+        "desc": "Administered by ARIN",
+        "name": "IANA IPv4 Address Space Registry"
+      },
+      "actual_num_related": 2,
+      "query_time": "2026-10-05T00:00:00",
+      "num_filtered_out": 0
+    }
+  }
+}

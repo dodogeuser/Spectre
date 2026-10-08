@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=8.3,<10.0
+# Offline PDF inspection and raster QA; not needed by the application.
+pypdf>=6.19,<7.0
+PyMuPDF>=1.28,<2.0

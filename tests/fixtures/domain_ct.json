@@ -1,0 +1,1 @@
+[{"id":"synthetic-issuance","cert_sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","dns_names":["example.com","www.example.com","*.example.com","unrelated.example.org"],"not_before":"2026-01-01T00:00:00Z","not_after":"2027-01-01T00:00:00Z","issuer":{"friendly_name":"Synthetic Test CA"},"synthetic":true}]

@@ -1,0 +1,9 @@
+# Dependency audit ? v1.0.0 candidate
+
+Phase 13 used existing installed packages; no dependency was upgraded. pip check passed before implementation. Exact installed runtime closure is pinned in requirements-runtime.lock; requirements-dev.lock adds existing test/PDF tools. pytest moved out of runtime requirements. Existing broad requirements remain compatibility declarations, while installers use the exact baseline lock. The installed baseline is CPython 3.14 on Windows; Python 3.12+ Linux wheel/resolution validation is pending. Locks do not include wheel hashes and are not a reproducible binary build guarantee.
+
+Locally installed pip-audit, Bandit and Ruff were unavailable. No online advisory database audit or uncontrolled upgrade was performed. pip check confirms metadata consistency, NOT absence of CVEs. Local AST/heuristic checks cover syntax, shell=True, common private-key/token signatures and allowlisted payload paths, supplemented by code review/tests. They are not a full static taint analysis or proof that no secret exists. Review the archive and run an advisory-backed dependency audit before public release.
+
+PyMySQL remains runtime-required. MySQL caching_sha2_password may need PyMySQL[rsa] (cryptography) if no secure connection is established; requirements-mysql-rsa.txt explicitly requests that extra, but its transitive versions were not installed/pinned/validated here. Resolve and audit it during clean-machine acceptance. Do not weaken MySQL authentication to avoid prerequisites. Starlette TestClient/httpx emits an existing deprecation warning; test-runtime migration is deferred rather than introducing an uncontrolled dependency upgrade.
+
+Cytoscape.js remains local with its vendor version metadata and license. No Node frontend framework/build dependency was added. Node is optional for tests only. Application VERSION=1.0.0/status=release-candidate is separate from collector/rule/report versions.

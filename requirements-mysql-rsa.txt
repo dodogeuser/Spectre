@@ -1,0 +1,3 @@
+# Optional MySQL caching_sha2_password RSA support if TLS is not configured.
+# Resolve/audit the cryptography extra separately on the installation platform.
+PyMySQL[rsa]==1.2.3

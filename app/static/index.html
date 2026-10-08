@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPECTRE — Investigation console</title>
+  <link rel="icon" href="/static/images/branding/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/images/branding/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/images/branding/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/images/branding/favicon-180.png">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <script src="/static/vendor/cytoscape.min.js" defer></script>
+  <script src="/static/js/main.js" defer></script>
+  <script src="/static/js/investigation.js" defer></script>
+  <script src="/static/js/findings.js" defer></script>
+  <script src="/static/js/ai.js" defer></script>
+  <script src="/static/js/reports.js" defer></script>
+  <script src="/static/js/active.js" defer></script>
+  <script src="/static/js/console.js" defer></script>
+</head><body>
+  <a class="skip-link" href="#console-main">Skip to investigation</a>
+  <main id="auth-panel" class="auth-panel">
+    <div class="brand-mark"><img class="auth-logo" src="/static/images/branding/spectre-display.png" alt="" width="96" height="91"><span>SPECTRE</span></div>
+    <p class="eyebrow">LOCAL INVESTIGATION CONSOLE</p>
+    <h1>Follow the evidence.</h1>
+    <p class="muted">An evidence-first workspace for authorized cybersecurity research.</p>
+    <form id="login-form">
+        <label>Username <input id="username" autocomplete="username" required maxlength="100"></label>
+        <label>Password <input id="password" type="password" autocomplete="current-password" required maxlength="1024"></label>
+        <button>Sign in</button>
+      </form>
+    <p class="auth-note">Case-scoped access · Traceable evidence · Local-first</p>
+  </main>
+  <div id="workspace" class="console-shell" hidden>
+    <header class="topbar">
+      <button id="sidebar-toggle" type="button" aria-label="Toggle navigation" aria-expanded="true" class="icon-button">☰</button>
+      <a class="brand" href="/" aria-label="SPECTRE home"><img src="/static/images/branding/spectre-ui.png" alt="" width="30" height="28"><span>SPECTRE</span></a>
+      <button id="case-picker-open" type="button" class="case-switch"><span id="current-case">Choose an investigation</span><span aria-hidden="true">⌄</span></button>
+      <span id="local-indicator" class="local-status" aria-live="polite">● CHECKING</span>
+      <span id="identity" class="identity"></span><button id="logout" type="button" class="quiet">Sign out</button>
+    </header>
+    <nav id="sidebar" class="sidebar" aria-label="Investigation sections">
+      <p class="nav-heading">INVESTIGATION</p>
+      <button type="button" data-nav="overview" aria-current="false"><span>Overview</span><span id="nav-overview-count" class="nav-count"></span></button><button type="button" data-nav="targets" aria-current="false"><span>Targets</span><span id="nav-targets-count" class="nav-count"></span></button><button type="button" data-nav="graph" aria-current="false"><span>Graph</span><span id="nav-graph-count" class="nav-count"></span></button><button type="button" data-nav="timeline" aria-current="false"><span>Timeline</span><span id="nav-timeline-count" class="nav-count"></span></button><button type="button" data-nav="evidence" aria-current="false"><span>Evidence</span><span id="nav-evidence-count" class="nav-count"></span></button><button type="button" data-nav="findings" aria-current="false"><span>Findings</span><span id="nav-findings-count" class="nav-count"></span></button><button type="button" data-nav="collectors" aria-current="false"><span>Collectors</span><span id="nav-collectors-count" class="nav-count"></span></button><button type="button" data-nav="settings" aria-current="false"><span>Settings</span><span id="nav-settings-count" class="nav-count"></span></button>
+      <button type="button" data-nav="active" aria-current="false"><span>Active / Validation</span><span id="nav-active-count" class="nav-count"></span></button>
+      <button type="button" data-nav="reports" aria-current="false"><span>Reports</span><span id="nav-reports-count" class="nav-count"></span></button>
+      <button id="ai-nav" type="button" disabled class="unavailable"><span>AI Assistant</span><small>Provider not configured</small></button>
+      <div class="sidebar-foot"><span class="mini-dot"></span> STORED DATA ONLY<p>Graph actions never collect.</p></div>
+    </nav>
+    <main id="console-main" class="console-main" tabindex="-1">
+      <div id="no-case" class="empty-state"><p class="eyebrow">INVESTIGATION WORKSPACE</p><h2>Choose a case to begin.</h2><p>Your evidence, relationships and findings stay inside the authorized case.</p><button id="choose-case" type="button">Open case library</button></div>
+      <section id="case-detail" class="case-workspace" hidden>
+        <section data-pane="overview" class="pane scroll-pane" hidden>
+          <div class="pane-heading"><div><p class="eyebrow">CASE OVERVIEW</p><h2 id="detail-title"></h2></div><button id="overview-primary" type="button">Open graph</button></div>
+          <p id="detail-description" class="case-description"></p><p id="detail-status" class="muted"></p>
+          <div id="overview-stats" class="stat-grid"></div>
+          <div class="overview-grid"><section class="surface"><h3>Scope summary</h3><div id="scope-summary"></div></section><section class="surface"><h3>Recent investigation activity</h3><div id="overview-activity"></div></section></div>
+          <p id="overview-limits" class="muted"></p>
+        </section>
+        <section data-pane="targets" class="pane scroll-pane" hidden>
+          <div class="pane-heading"><div><p class="eyebrow">AUTHORIZED SCOPE</p><h2>Targets</h2></div><span class="muted">Manage scope · No automatic collection</span></div>
+          <details id="target-editor" class="surface" open><summary>Add or edit a target</summary><form id="target-form">
+            <label>Type <select id="target-type">
+              <option value="domain">Domain</option><option value="ipv4">IPv4</option><option value="ipv6">IPv6</option>
+              <option value="url">URL</option><option value="organization">Organization</option>
+              <option value="username">Username</option><option value="email">Email</option>
+            </select></label>
+            <label>Value <input id="target-value" required maxlength="2048"></label>
+            <label>Scope <select id="target-scope">
+              <option value="passive_allowed">Passive allowed</option><option value="active_authorized">Active authorized</option>
+              <option value="excluded">Excluded</option>
+            </select></label>
+            <button id="target-save">Add target</button><button id="target-cancel" type="button" hidden>Cancel edit</button>
+          </form></details>
+          <div id="targets" class="target-list"></div><div class="pagination"><button id="targets-previous" type="button" hidden>Previous targets</button><button id="targets-next" type="button" hidden>Next targets</button></div>
+        </section>
+        <section data-pane="graph" class="pane graph-pane" id="investigation-view" aria-labelledby="graph-heading">
+          <div class="pane-heading compact"><div><p class="eyebrow">STORED CASE DATA</p><h2 id="graph-heading">Investigation graph</h2></div><div class="header-actions"><button id="graph-load" type="button">Refresh</button><button id="inspector-open" type="button" class="quiet" hidden>Inspector</button></div></div>
+          <div id="graph-controls" class="graph-controls" hidden>
+            <div class="graph-toolbar toolbar-primary">
+              <label class="search-control">Search<input id="graph-search" maxlength="200" placeholder="Entity value or ID"></label><button id="graph-focus" type="button" class="search-submit">Find &amp; focus</button><label>Layout<select id="graph-layout"><option value="cose">Organic</option><option value="breadthfirst">Hierarchical</option><option value="concentric">Radial</option><option value="grid">Grid</option></select></label><button id="graph-relayout" type="button">Apply layout</button><button id="graph-fit" type="button">Fit graph</button></div><div id="graph-search-results" class="search-results" aria-live="polite" hidden></div><div class="graph-toolbar toolbar-filters">
+              <label>Type<select id="graph-type"><option value="">All types</option><option>domain</option><option>subdomain</option><option>ip</option><option>asn</option><option>certificate</option><option>organization</option><option>url</option><option>service</option></select></label>
+              <label>Source<select id="graph-source"><option value="">All sources</option></select></label>
+              <label>Min. confidence<input id="graph-confidence" type="number" min="0" max="1" step="0.05" value="0"></label>
+              <button id="graph-apply" type="button">Filter</button><button id="graph-reset" type="button">Reset filters</button>
+              </div>
+            <div class="graph-view-controls" aria-label="Graph view controls">
+              <label>Certificates<select id="graph-certificates"><option value="collapsed">Collapsed</option><option value="expanded">Expanded</option><option value="hidden">Hidden</option></select></label>
+              <label>Hostnames<select id="graph-hostnames"><option value="expanded">Expanded</option><option value="collapsed">Collapsed</option><option value="hidden">Hidden</option></select></label>
+              <details class="type-visibility"><summary>Show entity types</summary><div><label><input id="graph-show-domain" type="checkbox" checked> Domains</label><label><input id="graph-show-ip" type="checkbox" checked> IPv4 / IPv6</label><label><input id="graph-show-asn" type="checkbox" checked> ASN</label><label><input id="graph-show-organization" type="checkbox" checked> Organizations</label><label><input id="graph-show-url" type="checkbox" checked> URLs</label></div></details>
+              <label class="check-label"><input id="graph-edge-labels" type="checkbox"> All edge labels</label>
+              <div class="zoom-controls" aria-label="Zoom"><button id="graph-zoom-out" type="button" aria-label="Zoom out">−</button><button id="graph-zoom-in" type="button" aria-label="Zoom in">+</button></div>
+              <details class="graph-legend"><summary>Legend</summary><div class="legend-content"><span><i class="legend-line"></i>Observed relationship</span><span><i class="legend-line derived"></i>Derived relationship</span><span>Target — outlined hexagon / TARGET</span><span>Domain / Hostname — teal ellipse / type label</span><span>IPv4 / IPv6 — blue rectangle / type label</span><span>ASN — lavender hexagon</span><span>Certificate — muted gold diamond</span><span>Organization — blue-gray rectangle</span><span>URL — teal rectangle</span><span>Parallel relationships use offset curves.</span><span>Graph actions never collect</span></div></details>
+            </div>
+            <p id="graph-groups" class="graph-group-summary" aria-live="polite"></p>
+            <div class="graph-canvas"><div id="case-graph" role="region" aria-label="Interactive stored case graph"></div><div id="graph-empty" class="graph-empty" hidden><h3 id="graph-empty-title"></h3><p>Collection requires your explicit action.</p><button id="graph-empty-action" type="button">Add a target</button></div></div>
+            <div class="graph-footer"><p id="graph-message" role="status"></p><span id="graph-selected">Selected: None</span><button id="graph-more" type="button">Show more nodes</button><label>Inspect entity<select id="graph-inspect"><option value="">Choose an entity</option></select></label><span id="graph-layout-status" role="status"></span></div>
+          </div>
+        </section>
+        <section data-pane="timeline" class="pane scroll-pane" hidden>
+          <div class="pane-heading"><div><p class="eyebrow">CHRONOLOGICAL RECORD</p><h2>Investigation timeline</h2></div><button id="timeline-refresh" type="button">Refresh stored events</button></div>
+          <p id="timeline-message" class="muted"></p><ol id="timeline-events" class="timeline-events"></ol><div class="pagination"><button id="timeline-previous" type="button" disabled>Previous events</button><button id="timeline-next" type="button" disabled>Next events</button></div>
+        </section>
+        <section data-pane="evidence" class="pane scroll-pane" hidden>
+          <div class="pane-heading"><div><p class="eyebrow">PROVENANCE &amp; TRACEABILITY</p><h2>Evidence explorer</h2></div><button id="evidence-refresh" type="button">Refresh stored evidence</button></div>
+          <p id="evidence-message" class="muted"></p><div class="table-scroll"><table class="evidence-table"><thead><tr><th>Evidence</th><th>Type / collector</th><th>Source / target</th><th>Captured UTC</th><th>Integrity</th><th>Inspect</th></tr></thead><tbody id="evidence-list"></tbody></table></div><div class="pagination"><button id="evidence-previous" type="button" disabled>Previous</button><button id="evidence-next" type="button" disabled>Next</button></div>
+        </section>
+        <section data-pane="findings" class="pane scroll-pane" hidden id="findings-view" aria-labelledby="findings-heading">
+            <h3 id="findings-heading">Explainable findings</h3>
+            <p>Rules use stored evidence only. Severity describes potential importance; confidence describes support for the captured observation. Neither is a vulnerability verdict.</p>
+            <button id="findings-load" type="button">Open stored findings</button>
+            <button id="findings-generate" type="button">Generate from stored evidence</button>
+            <p id="findings-message" role="status"></p>
+            <div id="findings-controls" hidden>
+              <label>Status <select id="findings-status"><option value="">All statuses</option><option>open</option><option>accepted</option><option>false_positive</option><option>informational</option><option>resolved</option></select></label>
+              <label>Severity <select id="findings-severity"><option value="">All severities</option><option>informational</option><option>low</option><option>medium</option><option>high</option><option>critical</option></select></label>
+              <button id="findings-filter" type="button">Apply finding filters</button>
+              <div id="findings-list"></div>
+              <button id="findings-previous" type="button" disabled>Previous findings</button><button id="findings-next" type="button" disabled>Next findings</button>
+              <aside id="finding-detail" aria-live="polite">Select a finding to inspect its rule and evidence.</aside>
+              <aside id="finding-evidence" aria-live="polite"></aside>
+            </div>
+          </section>
+        <section data-pane="collectors" class="pane scroll-pane" hidden>
+          <div class="pane-heading"><div><p class="eyebrow">EXPLICIT AUTHORIZED COLLECTION</p><h2>Collectors</h2></div><button id="collectors-refresh" type="button">Refresh stored run states</button></div>
+          <p class="muted">Select a target to open its existing collection controls. Opening a view never collects.</p>
+          <div id="collector-targets" class="collector-targets"></div><div id="collector-registry" class="registry-grid"></div><p id="collector-message" class="muted"></p><div id="collector-runs" class="run-list"></div>
+          <section id="domain-overview" hidden aria-labelledby="domain-heading">
+            <h3 id="domain-heading">Domain intelligence</h3>
+            <p>Collection queries public DNS, registration and certificate sources. Discovered hosts are not scanned or queried automatically.</p>
+            <p id="domain-scope"></p>
+            <div id="domain-actions"></div>
+            <p id="domain-message" role="status"></p>
+            <h4>DNS observations</h4><div id="domain-dns"></div>
+            <h4>Registration observations</h4><div id="domain-rdap"></div>
+            <h4>Certificate observations</h4><div id="domain-ct"></div>
+            <h4>Discovered infrastructure</h4><div id="domain-infrastructure"></div>
+            <h4>Recent domain collection runs</h4><div id="domain-runs"></div>
+          </section>
+<section id="ip-overview" hidden aria-labelledby="ip-heading">
+            <h3 id="ip-heading">IP intelligence</h3>
+            <p>Passive public-provider queries only. No connection to the target IP, port scan or service probe is performed.</p>
+            <p id="ip-scope"></p><div id="ip-actions"></div><p id="ip-message" role="status"></p>
+            <h4>Reverse DNS observations</h4><div id="ip-ptr"></div>
+            <h4>Network allocation and organization</h4><div id="ip-rdap"></div>
+            <h4>ASN, prefix and provider observations</h4><div id="ip-asn"></div>
+            <h4>Related domains observed in this case</h4><div id="ip-related"></div>
+            <h4>Reputation observations</h4><p id="ip-reputation"></p>
+            <h4>Recent IP collection runs</h4><div id="ip-runs"></div>
+          </section>
+<section id="web-overview" hidden aria-labelledby="web-heading">
+            <h3 id="web-heading">Web metadata</h3>
+            <p>One unauthenticated public HTTPS page. No crawling, script execution, form submission or exploit checks.</p>
+            <p id="web-scope"></p><div id="web-actions"></div><p id="web-message" role="status"></p>
+            <h4>Evidence and informational observations</h4><div id="web-observations"></div>
+            <h4>Recent web metadata runs</h4><div id="web-runs"></div>
+          </section>
+        </section>
+        <section data-pane="active" class="pane scroll-pane" hidden aria-labelledby="active-heading">
+          <h2 id="active-heading">Active / Validation</h2>
+          <p id="active-message" role="status">Active assessment is disabled by default.</p>
+          <p><strong>THIS ACTION DIRECTLY CONTACTS THE TARGET.</strong> Exact host only. No discovered asset inherits authorization. GET / HEAD / OPTIONS only; ports 80 / 443 only. No exploitation or scanning.</p>
+          <label>Target (first 100)<select id="active-target"></select></label>
+          <label><input id="active-confirm" type="checkbox"> I confirm explicit authority for this exact target and the selected non-destructive action.</label>
+          <div class="toolbar"><button id="active-refresh" type="button">Refresh stored history</button><button id="active-stop" type="button" disabled>Stop case active operations</button><button id="active-resume" type="button" disabled>Resume case</button></div>
+          <h3>Authorization</h3>
+          <p>First set the target scope to active_authorized in Targets. Only the case owner or an administrator can grant/revoke authorization. Scope alone grants no permission.</p>
+          <label>Justification<textarea id="active-note" maxlength="1000"></textarea></label>
+          <label><input id="active-port-80" type="checkbox"> HTTP / TCP 80</label><label><input id="active-port-443" type="checkbox" checked> HTTPS / TCP 443</label>
+          <button id="active-grant" type="button" disabled>Record explicit authorization</button>
+          <div id="active-grants"></div>
+          <h3>One explicit verification request</h3>
+          <p id="active-verification" role="status">Standalone active request.</p>
+          <button id="active-standalone" type="button">Start a new standalone request</button>
+          <form id="active-form">
+            <label>Module<select id="active-module"><option value="http">HTTP verification</option><option value="tls">TLS certificate</option><option value="service">Selected service ports</option><option value="validation">Security validation</option><option value="manual">Manual request builder</option></select></label>
+            <label>Method<select id="active-method"><option>HEAD</option><option>GET</option><option>OPTIONS</option></select></label>
+            <label>Scheme<select id="active-scheme"><option>https</option><option>http</option></select></label>
+            <label>Specific path<input id="active-path" value="/" maxlength="512" list="active-safe-paths"></label>
+            <datalist id="active-safe-paths"><option value="/"></option><option value="/robots.txt"></option><option value="/.well-known/security.txt"></option></datalist>
+            <label>Query parameters (JSON object; no credentials)<textarea id="active-query">{}</textarea></label>
+            <label>Optional Accept / Accept-Language headers (JSON object)<textarea id="active-headers">{}</textarea></label>
+            <p>TLS uses 443; service verification uses only the checked ports. HTTP modules use the selected method, scheme and path. Responses are bounded to 64 KiB, 20 seconds and two same-host redirects. No authentication cookies are sent.</p>
+            <button id="active-execute" disabled>Execute one authorized request</button>
+          </form>
+          <h3>Stored active runs</h3><div id="active-runs"></div>
+        </section>
+        <section data-pane="reports" class="pane scroll-pane" hidden aria-labelledby="reports-heading">
+          <div class="pane-heading"><div><p class="eyebrow">STORED INVESTIGATION RECORD</p><h2 id="reports-heading">Reports &amp; export</h2></div><button id="reports-refresh" type="button">Refresh preview</button></div>
+          <p>Deterministic reports from this case's stored evidence, infrastructure, findings and timeline. Exporting never collects data or uses AI.</p>
+          <section class="surface"><h3>Export options</h3>
+            <label class="report-redaction"><input id="reports-redact" type="checkbox" checked> Omit sensitive analyst text (case description, finding notes and override reasons)</label>
+            <p class="muted">Titles, target values, owner identity and infrastructure remain in the report. Review exports before sharing. Raw provider bodies and AI analysis are excluded.</p>
+            <div class="report-actions"><button id="reports-html" type="button" disabled>Download HTML</button><button id="reports-pdf" type="button" disabled>Download PDF</button></div>
+          </section>
+          <p id="reports-status" role="status" aria-live="polite">Open Reports to preview the authorized case.</p>
+          <section id="reports-preview" class="surface" aria-label="Report preview"></section>
+        </section>
+        <section data-pane="settings" class="pane scroll-pane" hidden>
+          <div class="pane-heading"><div><p class="eyebrow">CASE ADMINISTRATION</p><h2>Settings &amp; audit</h2></div></div>
+          <details class="surface" open><summary>Case details</summary><form id="edit-form">
+            <label>Title <input id="edit-title" required maxlength="200"></label>
+            <label>Description <textarea id="edit-description" maxlength="10000"></textarea></label>
+            <label>Status <select id="edit-status"><option>open</option><option>archived</option></select></label>
+            <button>Save case</button>
+          </form></details><details class="surface"><summary>Access &amp; membership</summary><form id="member-form">
+            <label>Member user ID <input id="member-id" type="number" min="1" required></label>
+            <button name="action" value="add">Add member</button>
+            <button name="action" value="remove">Remove member</button>
+          </form></details>
+          <details class="surface"><summary>AI Assistant — Disabled / Provider not configured</summary><p>Provider not configured. No model is downloaded or enabled by this interface. AI-generated analysis is not evidence.</p></details>
+          <details class="surface"><summary>Audit activity</summary><ul id="audit" class="audit-list"></ul></details>
+        </section>
+        <section data-pane="ai" class="pane scroll-pane" hidden id="ai-view" aria-labelledby="ai-heading">
+            <h3 id="ai-heading">AI assistant</h3>
+            <p><strong>AI-generated analysis is not evidence.</strong> Read-only summaries of stored records. No collection, commands or investigation changes.</p>
+            <button id="ai-open" type="button">Open AI assistant</button>
+            <div id="ai-panel" hidden>
+              <p id="ai-status" role="status"></p>
+              <p>Only a bounded context from this case is sent to local Ollama. No external provider and no saved conversation. Each question starts fresh.</p>
+              <form id="ai-form">
+                <label>Question about this case <textarea id="ai-question" required maxlength="1000" placeholder="What are the important findings in this case and what evidence supports them?"></textarea></label>
+                <button id="ai-ask">Ask about stored records</button>
+              </form>
+              <div id="ai-answer" aria-live="polite"></div>
+            </div>
+          </section>
+      </section>
+    </main>
+    <aside id="inspector-shell" class="inspector" aria-labelledby="inspector-heading" hidden>
+      <div class="inspector-heading"><h2 id="inspector-heading">Inspector</h2><button id="inspector-toggle" type="button" aria-label="Collapse inspector" aria-expanded="true">×</button></div>
+      <div class="inspector-actions"><button id="graph-expand" type="button" disabled>Expand stored neighbors</button><button id="inspector-timeline" type="button">View timeline</button></div>
+      <div class="inspector-actions node-size-controls" aria-label="Selected node size"><span>Node size</span><button id="graph-size-down" type="button" disabled>Smaller</button><button id="graph-size-up" type="button" disabled>Larger</button><button id="graph-size-reset" type="button" disabled>Reset size</button></div>
+      <div id="graph-detail" aria-live="polite">Select an entity or relationship to inspect it.</div>
+    </aside>
+
+    <footer class="activity-bar"><button id="activity-toggle" type="button" aria-expanded="false">Activity ↑</button><div id="activity-feed">No case selected.</div><p id="health" role="status">Checking local server…</p></footer>
+    <div id="activity-expanded" class="activity-expanded" hidden></div>
+    <dialog id="case-library" class="case-library"><div class="pane-heading"><div><p class="eyebrow">CASE LIBRARY</p><h2>Your investigations</h2></div><button id="case-picker-close" type="button">Close</button></div><div id="cases" class="case-list"></div><button id="next-page" type="button" hidden>Next page</button><details class="surface"><summary>Create a case</summary><form id="case-form">
+          <label>Case title <input id="case-title" required maxlength="200"></label>
+          <label>Description <textarea id="case-description" maxlength="10000"></textarea></label>
+          <button>Create case</button>
+        </form></details></dialog>
+  </div>
+  <p id="message" class="global-message" role="alert"></p>
+</body></html>
